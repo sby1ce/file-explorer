@@ -10,6 +10,8 @@ use wasm_bindgen::prelude::*;
 extern "C" {
     #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"])]
     pub async fn invoke(cmd: &str, args: JsValue) -> JsValue;
+    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"], js_name = convertFileSrc)]
+    pub fn convert_file_src(file_path: JsValue) -> JsValue;
 }
 
 #[derive(Serialize, Deserialize)]
