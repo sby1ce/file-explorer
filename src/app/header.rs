@@ -12,10 +12,7 @@ fn pick_directory(set_files: Signal<Vec<FileData>>) {
             paths
                 .into_iter()
                 .enumerate()
-                .map(|(idx, js_value)| FileData {
-                    id: idx as u32,
-                    path: js_value.as_string().unwrap(),
-                })
+                .map(FileData::from)
                 .collect(),
         );
     });
