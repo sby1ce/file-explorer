@@ -1,8 +1,11 @@
+mod details;
 mod header;
 
 use serde::{Deserialize, Serialize};
 use sycamore::prelude::*;
 use wasm_bindgen::prelude::*;
+
+use crate::app::details::DetailsItem;
 
 #[wasm_bindgen]
 extern "C" {
@@ -22,14 +25,24 @@ pub fn App() -> View {
     view! {
         header::Header(set_files=files) {}
         main(class=styles["main"]) {
-            ul(class=styles["ul"]) {
-                Keyed(
-                    list=files,
-                    view=|file| view! {
-                        li { (file.path) }
-                    },
-                    key=|file| file.id,
-                )
+            table(class=styles["table"]) {
+                colgroup {
+                    col {}
+                    col {}
+                }
+                thead {
+                    tr {
+                        th(class=styles["th"]) {}
+                        th(class=styles["th"]) { "path" }
+                    }
+                }
+                tbody {
+                    Keyed(
+                        list=files,
+                        view=DetailsItem,
+                        key=|file| file.id,
+                    )
+                }
             }
         }
     }
