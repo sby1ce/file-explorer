@@ -25,25 +25,12 @@ pub fn App() -> View {
     view! {
         header::Header(set_files=files) {}
         main(class=styles["main"]) {
-            table(class=styles["table"]) {
-                colgroup {
-                    col {}
-                    col {}
-                }
-                thead {
-                    tr {
-                        th(class=styles["th"]) {}
-                        th(class=styles["th"]) { "path" }
-                        th(class=styles["th"]) { "created at" }
-                    }
-                }
-                tbody {
-                    Keyed(
-                        list=files,
-                        view=DetailsItem,
-                        key=|file| file.id,
-                    )
-                }
+            div(class=styles["div"]) {
+                Keyed(
+                    list=files,
+                    view=DetailsItem,
+                    key=|file| file.id,
+                )
             }
         }
     }

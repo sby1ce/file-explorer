@@ -38,7 +38,8 @@ fn get_creation_time(path: &Path) -> Timestamp {
 
 #[tauri::command]
 fn pick_directory<R: Runtime>(app: tauri::AppHandle<R>) -> Option<Vec<FileData>> {
-    app.dialog().file().blocking_pick_folder().map(|file_path| {
+    let file_path = app.dialog().file().blocking_pick_folder()?;
+    Some(
         fs::read_dir(file_path.into_path().unwrap())
             .unwrap()
             .filter_map(|entry| {
@@ -54,8 +55,8 @@ fn pick_directory<R: Runtime>(app: tauri::AppHandle<R>) -> Option<Vec<FileData>>
                     creation_time,
                 }
             })
-            .collect()
-    })
+            .collect(),
+    )
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
