@@ -9,11 +9,11 @@ publish = false
 console_error_panic_hook = "0.1.*"
 css_mod = "0.1.*"
 fe-types = { path = "./fe-types" }
+serde = { version = "1.*.*", features = ["derive"] }
+serde-wasm-bindgen = "0.6.*"
 sycamore = { version = "0.9.*", features = ["suspense"] }
 wasm-bindgen = "0.2.*"
 wasm-bindgen-futures = "0.4.*"
-serde = { version = "1.*.*", features = ["derive"] }
-serde-wasm-bindgen = "0.6.*"
 
 [build-dependencies]
 css_mod = "0.1.*"

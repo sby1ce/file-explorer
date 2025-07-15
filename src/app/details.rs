@@ -13,6 +13,9 @@ pub fn DetailsItem(file_data: FileData) -> View {
             td(class=styles["td"]) {
                 (file_data.path)
             }
+            td(class=styles["td"]) {
+                (file_data.creation_time.format())
+            }
         }
     }
 }

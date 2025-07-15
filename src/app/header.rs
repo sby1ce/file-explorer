@@ -7,12 +7,15 @@ use fe_types::FileData;
 fn pick_directory(set_files: Signal<Vec<FileData>>) {
     let args = serde_wasm_bindgen::to_value(&EmptyArgs).unwrap();
     spawn_local_scoped(async move {
-        let paths = Array::from(&invoke("pick_directory", args).await);
+        let val = invoke("pick_directory", args).await;
+        if val.is_null() {
+            return;
+        }
+        let paths = Array::from(&val);
         set_files.set(
             paths
                 .into_iter()
-                .enumerate()
-                .map(FileData::from)
+                .map(|value| serde_wasm_bindgen::from_value(value).unwrap())
                 .collect(),
         );
     });

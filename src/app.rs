@@ -34,6 +34,7 @@ pub fn App() -> View {
                     tr {
                         th(class=styles["th"]) {}
                         th(class=styles["th"]) { "path" }
+                        th(class=styles["th"]) { "created at" }
                     }
                 }
                 tbody {

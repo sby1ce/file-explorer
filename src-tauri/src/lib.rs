@@ -1,10 +1,10 @@
 use std::{
-    fs::{self, File, OpenOptions},
+    fs::{self, File},
     os::windows::io::AsRawHandle,
     path::Path,
 };
 
-use fe_types::FileData;
+use fe_types::{FileData, Timestamp};
 use tauri::Runtime;
 use tauri_plugin_dialog::DialogExt;
 use windows::Win32::{
@@ -12,12 +12,12 @@ use windows::Win32::{
     Storage::FileSystem::GetFileTime,
 };
 
-// Seconds between 1601-01-01 and 1970-01-01
-const EPOCH_DIFFERENCE: i64 = 11_644_473_600;
-const NANOSECONDS_PER_SECOND: i64 = 10_000_000;
+// filetime ticks between 1601-01-01 and 1970-01-01
+const EPOCH_DIFFERENCE: i64 = 116_444_736_000_000_000;
+const FILETIME_TICKS_PER_MILLISECOND: i64 = 10_000;
 
-fn get_creation_time(path: &Path) -> i64 {
-    let file: File = OpenOptions::new().open(&path).ok().unwrap();
+fn get_creation_time(path: &Path) -> Timestamp {
+    let file: File = File::open(path).unwrap();
     let handle: HANDLE = HANDLE(file.as_raw_handle());
     let mut filetime: FILETIME = FILETIME {
         dwLowDateTime: 0,
@@ -32,8 +32,8 @@ fn get_creation_time(path: &Path) -> i64 {
         high | low
     };
 
-    let timestamp: i64 = filetime_value / NANOSECONDS_PER_SECOND - EPOCH_DIFFERENCE;
-    timestamp
+    let timestamp: i64 = (filetime_value - EPOCH_DIFFERENCE) / FILETIME_TICKS_PER_MILLISECOND;
+    Timestamp::new(timestamp)
 }
 
 #[tauri::command]
@@ -41,17 +41,18 @@ fn pick_directory<R: Runtime>(app: tauri::AppHandle<R>) -> Option<Vec<FileData>>
     app.dialog().file().blocking_pick_folder().map(|file_path| {
         fs::read_dir(file_path.into_path().unwrap())
             .unwrap()
-            .enumerate()
-            .filter_map(|(idx, entry)| {
+            .filter_map(|entry| {
                 let path = entry.unwrap().path();
-                path.is_file()
-                    .then_some(
-                        FileData {
-                            id: idx,
-                            path: path.into_os_string().into_string().unwrap()
-                            creation_time: get_creation_time(&path),
-                        }
-                    )
+                path.is_file().then_some(path)
+            })
+            .enumerate()
+            .map(|(idx, path)| {
+                let creation_time = get_creation_time(&path);
+                FileData {
+                    id: idx as u32,
+                    path: path.into_os_string().into_string().unwrap(),
+                    creation_time,
+                }
             })
             .collect()
     })
