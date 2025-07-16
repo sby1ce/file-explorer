@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use chrono::{DateTime, Utc};
 
 /// in milliseconds
@@ -19,6 +21,12 @@ impl Timestamp {
 #[derive(Debug, serde::Serialize, serde::Deserialize, Clone, PartialEq, Eq)]
 pub struct FileData {
     pub id: u32,
-    pub path: String,
+    pub file_name: String,
     pub creation_time: Timestamp,
+}
+
+#[derive(Debug, serde::Serialize, serde::Deserialize, Default, Clone, PartialEq, Eq)]
+pub struct PickedDirectory {
+    pub directory: PathBuf,
+    pub files: Vec<FileData>,
 }

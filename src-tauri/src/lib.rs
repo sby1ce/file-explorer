@@ -4,8 +4,8 @@ use std::{
     path::Path,
 };
 
-use fe_types::{FileData, Timestamp};
-use tauri::Runtime;
+use fe_types::{FileData, PickedDirectory, Timestamp};
+use tauri::{Runtime, ipc::Response};
 use tauri_plugin_dialog::DialogExt;
 use windows::Win32::{
     Foundation::{FILETIME, HANDLE},
@@ -37,26 +37,30 @@ fn get_creation_time(path: &Path) -> Timestamp {
 }
 
 #[tauri::command]
-fn pick_directory<R: Runtime>(app: tauri::AppHandle<R>) -> Option<Vec<FileData>> {
-    let file_path = app.dialog().file().blocking_pick_folder()?;
-    Some(
-        fs::read_dir(file_path.into_path().unwrap())
-            .unwrap()
-            .filter_map(|entry| {
-                let path = entry.unwrap().path();
-                path.is_file().then_some(path)
-            })
-            .enumerate()
-            .map(|(idx, path)| {
-                let creation_time = get_creation_time(&path);
-                FileData {
-                    id: idx as u32,
-                    path: path.into_os_string().into_string().unwrap(),
-                    creation_time,
-                }
-            })
-            .collect(),
-    )
+fn pick_directory<R: Runtime>(app: tauri::AppHandle<R>) -> Response {
+    let Some(file_path) = app.dialog().file().blocking_pick_folder() else {
+        return Response::new(postcard::to_allocvec::<Option<PickedDirectory>>(&None).unwrap());
+    };
+    let directory = file_path.into_path().unwrap();
+    let files: Vec<FileData> = fs::read_dir(&directory)
+        .unwrap()
+        .filter_map(|entry| {
+            let path = entry.unwrap().path();
+            path.is_file().then_some(path)
+        })
+        .enumerate()
+        .map(|(idx, path)| {
+            let creation_time = get_creation_time(&path);
+            // have to extract file name on the back end because for some reason it doesn't work on the front end
+            FileData {
+                id: idx as u32,
+                file_name: path.file_name().unwrap().to_str().unwrap().to_owned(),
+                creation_time,
+            }
+        })
+        .collect();
+    let picked: PickedDirectory = PickedDirectory { directory, files };
+    Response::new(postcard::to_allocvec(&Some(picked)).unwrap())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

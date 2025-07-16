@@ -1,28 +1,24 @@
 use sycamore::{futures::spawn_local_scoped, prelude::*};
-use wasm_bindgen_futures::js_sys::Array;
+use wasm_bindgen_futures::js_sys::Uint8Array;
 
-use crate::app::{EmptyArgs, invoke};
-use fe_types::FileData;
+use crate::app::invoke;
+use fe_types::PickedDirectory;
 
-fn pick_directory(set_files: Signal<Vec<FileData>>) {
-    let args = serde_wasm_bindgen::to_value(&EmptyArgs).unwrap();
+fn pick_directory(set_files: Signal<PickedDirectory>) {
     spawn_local_scoped(async move {
-        let val = invoke("pick_directory", args).await;
-        if val.is_null() {
+        let constructor_arg = invoke("pick_directory").await;
+        let Some(paths) = postcard::from_bytes::<Option<PickedDirectory>>(
+            &Uint8Array::new(&constructor_arg).to_vec(),
+        )
+        .unwrap() else {
             return;
-        }
-        let paths = Array::from(&val);
-        set_files.set(
-            paths
-                .into_iter()
-                .map(|value| serde_wasm_bindgen::from_value(value).unwrap())
-                .collect(),
-        );
+        };
+        set_files.set(paths);
     });
 }
 
 #[component(inline_props)]
-pub fn Header(set_files: Signal<Vec<FileData>>) -> View {
+pub fn Header(set_files: Signal<PickedDirectory>) -> View {
     let styles = css_mod::get!("header.css");
     view! {
         header(class=styles["header"]) {
