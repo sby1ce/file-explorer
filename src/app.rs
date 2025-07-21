@@ -22,10 +22,32 @@ pub fn App() -> View {
     let directory = create_signal(PickedDirectory::default());
     let styles = css_mod::get!("app.css");
     let files = move || directory.get_clone().files;
+
+    let widths: [Signal<String>; 2] = [create_signal("250px".to_owned()); 2];
+    let template_columns = create_memo(move || {
+        format!(
+            "grid-template-columns: {} {} auto",
+            widths[0].get_clone(),
+            widths[1].get_clone(),
+        )
+    });
+
+    // https://troll-winner.com/blog/one-more-dual-range-slider/
     view! {
         header::Header(set_files=directory) {}
         main(class=styles["main"]) {
-            div(class=styles["div"]) {
+            div(class=styles["thead"], style=template_columns.get_clone()) {
+                p(class=styles["th"]) {
+                    "file name"
+                    div(class=styles["slider"]) {}
+                }
+                p(class=styles["th"]) {
+                    "creation time"
+                    div(class=styles["slider"])
+                }
+                div {}
+            }
+            div(class=styles["tbody"], style=template_columns.get_clone()) {
                 Keyed(
                     list=files,
                     view=DetailsItem,
