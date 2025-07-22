@@ -2,3 +2,126 @@
     margin: 0;
     overflow-x: hidden;
 }
+
+/*
+$range-height: 2rem !default;
+$range-border-radius: 0.25rem !default;
+$range-track-size: 0.4rem !default;
+$range-track-bg: #e9ecef !default;
+$range-fill-bg: #0d6efd !default;
+$range-disabled-track-bg: #dee2e6 !default;
+$range-handle-size: 1rem !default;
+$range-handle-border: 1px solid #dee2e6 !default;
+$range-handle-border-radius: 50% !default;
+$range-handle-bg: #fff !default;
+$range-disabled-handle-bg: #e9ecef !default;
+$range-handle-shadow: 0 1px 3px #dee2e6 !default;
+$range-tooltip-bg: #0d6efd !default;
+$range-tooltip-color: #fff !default;
+$range-tooltip-padding: 0 0.5rem !default;
+$range-tooltip-border-radius: 0.25rem !default; 
+*/
+
+/* https://troll-winner.com/blog/one-more-dual-range-slider/ */
+.range {
+    &::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 0.4rem;
+        border: 0 solid transparent;
+        border-radius: 0.25rem;
+        background: #e9ecef;
+        cursor: pointer;
+    }
+
+    &::-moz-range-track {
+        width: 100%;
+        height: 0.4rem;
+        border: 0 solid transparent;
+        border-radius: 0.25rem;
+        background: #e9ecef;
+        cursor: pointer;
+    }
+
+    &::-ms-track {
+        width: 100%;
+        height: 0.4rem;
+        border: 0 solid transparent;
+        border-radius: 0.25rem;
+        background: #e9ecef;
+        cursor: pointer;
+    }
+    
+    &::-webkit-slider-thumb {
+        width: 1rem;
+        height: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px #dee2e6;
+        cursor: pointer;
+    }
+
+    &::-moz-range-thumb {
+        width: 1rem;
+        height: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px #dee2e6;
+        cursor: pointer;
+    }
+
+    &::-ms-thumb {
+        width: 1rem;
+        height: 1rem;
+        border: 1px solid #dee2e6;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px #dee2e6;
+        cursor: pointer;
+    }
+
+    display: block;
+    width: 100%;
+    height: 2rem;
+    appearance: none;
+
+    &:disabled {
+        cursor: not-allowed;
+    }
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        margin-top: (0.4rem / 2) - (1rem / 2);
+    }
+}
+
+/* vscode doesn't like vendor-specific selectors nested */
+.range:focus::-webkit-slider-runnable-track {
+    background: #e9ecef;
+}
+.range:focus::-moz-range-track {
+    background: #e9ecef;
+}
+.range:focus::-ms-track {
+    background: #e9ecef;
+}
+
+.range:disabled::-webkit-slider-runnable-track {
+    background: #dee2e6;
+}
+.range:disabled::-moz-range-track {
+    background: #dee2e6;
+}
+.range:disabled::-ms-track {
+    background: #dee2e6;
+}
+.range:disabled::-webkit-slider-thumb {
+    background: #e9ecef;
+}
+.range:disabled::-moz-range-thumb {
+    background: #e9ecef;
+}
+.range:disabled::-ms-thumb {
+    background: #e9ecef;
+}

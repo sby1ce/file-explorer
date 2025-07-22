@@ -15,3 +15,11 @@ pub fn DetailsItem(file_data: FileData) -> View {
         div {}
     }
 }
+
+#[component]
+pub fn MultiRange() -> View {
+    let styles = css_mod::get!("details.css");
+    view! {
+        input(r#type="range", class=styles["range"])
+    }
+}

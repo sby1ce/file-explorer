@@ -5,7 +5,7 @@ use fe_types::PickedDirectory;
 use sycamore::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::app::details::DetailsItem;
+use crate::app::details::{DetailsItem, MultiRange};
 
 #[wasm_bindgen]
 extern "C" {
@@ -32,10 +32,10 @@ pub fn App() -> View {
         )
     });
 
-    // https://troll-winner.com/blog/one-more-dual-range-slider/
     view! {
         header::Header(set_files=directory) {}
         main(class=styles["main"]) {
+            MultiRange {}
             div(class=styles["thead"], style=template_columns.get_clone()) {
                 p(class=styles["th"]) {
                     "file name"
