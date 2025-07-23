@@ -20,6 +20,9 @@ pub fn DetailsItem(file_data: FileData) -> View {
 pub fn MultiRange() -> View {
     let styles = css_mod::get!("details.css");
     view! {
-        input(r#type="range", class=styles["range"])
+        div(class=styles["double-range"]) {
+            input(r#type="range", class=format!("{} {}", styles["range"], styles["from"]))
+            input(r#type="range", class=styles["range"])
+        }
     }
 }

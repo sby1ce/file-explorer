@@ -125,3 +125,27 @@ $range-tooltip-border-radius: 0.25rem !default;
 .range:disabled::-ms-thumb {
     background: #e9ecef;
 }
+
+.double-range {
+    position: relative;
+
+    .from {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1;
+        background-color: transparent;
+    }
+
+    .from::-webkit-slider-runnable-track {
+        background-color: transparent;
+    }
+    .from::-moz-range-track  {
+        background-color: transparent;
+    }
+    .from::-ms-track {
+        background-color: transparent;
+    }
+}
