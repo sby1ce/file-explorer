@@ -59,7 +59,7 @@ fn pick_directory<R: Runtime>(app: tauri::AppHandle<R>) -> Response {
             }
         })
         .collect();
-
+    
     let picked: PickedDirectory = PickedDirectory { directory, files };
     Response::new(postcard::to_allocvec(&Some(picked)).unwrap())
 }
