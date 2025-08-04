@@ -20,6 +20,7 @@ pub fn DetailsItem(file_data: FileData) -> View {
 pub fn MultiRange() -> View {
     let styles = css_mod::get!("details.css");
 
+    // from-position and to-position control the clip-path that separates the dual slider
     let from_position: Signal<f64> = create_signal(10_f64);
     let to_position: Signal<f64> = create_signal(80_f64);
 
@@ -34,23 +35,34 @@ pub fn MultiRange() -> View {
     let from_input = move |_e| {
         let from = from_position.get();
         let to = to_position.get();
-        console_dbg!(from_position.get(), to_position.get());
         if from > to {
             from_position.set(to);
         }
 
         let range_distance = from_max - from_min;
         let from_percentage = (from_position.get() - from_min) / range_distance * 100.0;
-        let to_percentage = (to_position.get() - to_min) / range_distance * 100.0;
+        let to_percentage = (to - to_min) / range_distance * 100.0;
 
         let style: String = format!(
-            "--from-position: {from_percentage}%; --to-position: {to_percentage}"
+            "--from-position: {from_percentage}%; --to-position: {to_percentage}%"
         );
-        console_dbg!(&style);
         input_style.set(style);
     };
     let to_input = move |_e| {
-        console_dbg!(from_position.get(), to_position.get());
+        let from = from_position.get();
+        let to = to_position.get();
+        if from > to {
+            to_position.set(from);
+        }
+
+        let range_distance = from_max - from_min;
+        let from_percentage = (from - from_min) / range_distance * 100.0;
+        let to_percentage = (to_position.get() - to_min) / range_distance * 100.0;
+
+        let style: String = format!(
+            "--from-position: {from_percentage}%; --to-position: {to_percentage}%"
+        );
+        input_style.set(style);
     };
 
     view! {
