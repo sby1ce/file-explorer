@@ -146,9 +146,32 @@ $range-tooltip-border-radius: 0.25rem !default;
         bottom: 0;
         z-index: 1;
         background-color: transparent;
+    }
 
-        --offset: calc(100% - var(--to-position) + ((var(--to-position) - var(--from-position)) / 2));
-        clip-path: inset(-1rem var(--offset) -1rem 0);
+    .from::-webkit-slider-runnable-track {
+        background-color: transparent;
+    }
+    .from::-moz-range-track  {
+        background-color: transparent;
+    }
+    .from::-ms-track {
+        background-color: transparent;
+    }
+}
+
+.multi-range {
+    position: relative;
+    
+    .from {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 1;
+        background-color: transparent;
+
+        clip-path: inset(-1rem var(--right-offset) -1rem var(--left-offset));
         outline: 1px solid tomato;
     }
 

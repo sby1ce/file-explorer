@@ -1,4 +1,6 @@
 use sycamore::prelude::*;
+use wasm_bindgen::JsCast;
+use web_sys::Element;
 
 use fe_types::FileData;
 
@@ -20,69 +22,90 @@ pub fn DetailsItem(file_data: FileData) -> View {
 pub fn MultiRange() -> View {
     let styles = css_mod::get!("details.css");
 
-    // from-position and to-position control the clip-path that separates the dual slider
-    let from_position: Signal<f64> = create_signal(10_f64);
-    let to_position: Signal<f64> = create_signal(80_f64);
-
-    let input_style: Signal<String> = create_signal(String::new());
-
-    let from_max = 200.0;
-    let from_min = 0.0;
-
-    let to_max = 200.0;
-    let to_min = 0.0;
-
-    let from_input = move |_e| {
-        let from = from_position.get();
-        let to = to_position.get();
-        if from > to {
-            from_position.set(to);
+    let range_ref = create_node_ref();
+    let max_width = create_memo(move || {
+        // sycamore is_ssr macros are producing clippy warnings
+        #[cfg(target_arch = "wasm32")]
+        let is_server = false;
+        #[cfg(not(target_arch = "wasm32"))]
+        let is_server = true;
+        if is_server {
+            f64::from(
+                range_ref
+                    .get()
+                    .dyn_into::<Element>()
+                    .map(|el: Element| el.client_width())
+                    .unwrap_or(1000),
+            )
+        } else {
+            1000.0
         }
+    });
 
-        let range_distance = from_max - from_min;
-        let from_percentage = (from_position.get() - from_min) / range_distance * 100.0;
-        let to_percentage = (to - to_min) / range_distance * 100.0;
-
-        let style: String = format!(
-            "--from-position: {from_percentage}%; --to-position: {to_percentage}%"
-        );
-        input_style.set(style);
+    let binds: [Signal<f64>; 4] = [
+        create_signal(50.0),
+        create_signal(100.0),
+        create_signal(150.0),
+        create_signal(200.0),
+    ];
+    let get_binds = move || {
+        [
+            binds[0].get(),
+            binds[1].get(),
+            binds[2].get(),
+            binds[3].get(),
+        ]
     };
-    let to_input = move |_e| {
-        let from = from_position.get();
-        let to = to_position.get();
-        if from > to {
-            to_position.set(from);
-        }
 
-        let range_distance = from_max - from_min;
-        let from_percentage = (from - from_min) / range_distance * 100.0;
-        let to_percentage = (to_position.get() - to_min) / range_distance * 100.0;
-
-        let style: String = format!(
-            "--from-position: {from_percentage}%; --to-position: {to_percentage}%"
-        );
-        input_style.set(style);
+    let input = move |idx: usize| {
+        let value = binds[idx].get();
+        let p = get_binds();
+        let min = if idx == 0 { 0.0 } else { p[idx - 1] };
+        let max = *p.get(idx + 1).unwrap_or(&max_width.get());
+        binds[idx].set(f64::min(max, f64::max(min, value)));
     };
 
     view! {
-        div(class=styles["double-range"]) {
+        div(
+            r#ref=range_ref,
+            class=styles["multi-range"],
+        ) {
             input(
-                r#type="range", 
-                min=from_min.to_string(),
-                max=from_max.to_string(),
-                bind:valueAsNumber=from_position, 
+                r#type="range",
+                min="0",
+                max=max_width.get().to_string(),
+                // order of bind and on matters
+                bind:valueAsNumber=binds[0],
+                on:input=move |_| input(0),
                 class=format!("{} {}", styles["range"], styles["from"]),
-                style=input_style.get_clone(),
-                on:input=from_input
+                style="--right-offset: var(--offset-1); --left-offset: var(--offset-0)",
             )
             input(
-                r#type="range", 
-                min=to_min.to_string(),
-                max=to_max.to_string(),
-                bind:valueAsNumber=to_position, 
+                r#type="range",
+                min="0",
+                max=max_width.get().to_string(),
+                bind:valueAsNumber=binds[1],
+                on:input=move |_| input(1),
+                class=format!("{} {}", styles["range"], styles["from"]),
+                style="--right-offset: var(--offset-2); --left-offset: var(--offset-1)",
+            )
+            input(
+                r#type="range",
+                min="0",
+                max=max_width.get().to_string(),
+                bind:valueAsNumber=binds[2],
+                on:input=move |_| input(2),
+                class=format!("{} {}", styles["range"], styles["from"]),
+                style="--right-offset: var(--offset-3); --left-offset: var(--offset-2)",
+            )
+            input(
+                r#type="range",
+                min="0",
+                max=max_width.get().to_string(),
+                bind:valueAsNumber=binds[3],
+                on:input=move |_| input(3),
                 class=styles["range"],
-                on:input=to_input
+                style="--right-offset: var(--offset-4); --left-offset: var(--offset-3)",
             )
         }
     }
