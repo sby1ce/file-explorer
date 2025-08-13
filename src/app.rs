@@ -1,11 +1,11 @@
 mod details;
 mod header;
 
-use fe_types::PickedDirectory;
 use sycamore::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::app::details::{DetailsItem, OkBruh};
+use crate::app::details::{DetailsItem, TableHead};
+use fe_types::PickedDirectory;
 
 #[wasm_bindgen]
 extern "C" {
@@ -23,37 +23,31 @@ pub fn App() -> View {
     let styles = css_mod::get!("app.css");
     let files = move || directory.get_clone().files;
 
-    let widths: [Signal<String>; 2] = [create_signal("250px".to_owned()); 2];
-    let template_columns = create_memo(move || {
+    // creating vec with map because `Signal` is clonable
+    // so Rust clones the same signal for all elements
+    let widths: Signal<Vec<Signal<i32>>> =
+        create_signal((0..2).map(|_| create_signal(200)).collect());
+
+    let style = move || {
+        let widths = widths.get_clone();
         format!(
-            "grid-template-columns: {} {} auto",
-            widths[0].get_clone(),
-            widths[1].get_clone(),
+            "grid-template-columns: {}px {}px auto",
+            widths[0].get(),
+            widths[1].get(),
         )
-    });
+    };
 
     view! {
         header::Header(set_files=directory) {}
-        main(class=styles["main"]) {
-            OkBruh {}
-            div(class=styles["thead"], style=template_columns.get_clone()) {
-                p(class=styles["th"]) {
-                    "file name"
-                    div(class=styles["slider"]) {}
-                }
-                p(class=styles["th"]) {
-                    "creation time"
-                    div(class=styles["slider"])
-                }
-                div {}
-            }
-            div(class=styles["tbody"], style=template_columns.get_clone()) {
-                Keyed(
-                    list=files,
-                    view=DetailsItem,
-                    key=|file| file.id,
-                )
-            }
+
+        main(class=styles["main"], style=style) {
+            TableHead(widths=widths) {}
+
+            Keyed(
+                list=files,
+                view=DetailsItem,
+                key=|file| file.id,
+            )
         }
     }
 }

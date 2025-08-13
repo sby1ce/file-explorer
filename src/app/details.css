@@ -3,11 +3,6 @@
     overflow-x: hidden;
 }
 
-.thead {
-    display: grid;
-    grid-template-rows: 200px 200px auto;
-}
-
 .column {
     position: relative;
     padding-inline: 0.25rem;

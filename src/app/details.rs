@@ -113,26 +113,15 @@ fn ResizableColumn(width: Signal<i32>) -> View {
     }
 }
 
-#[component]
-pub fn OkBruh() -> View {
-    let styles = css_mod::get!("details.css");
-
-    let width1 = create_signal(200);
-    let width2 = create_signal(200);
-
-    let style = move || {
-        format!(
-            "grid-template-columns: {}px {}px auto",
-            width1.get(),
-            width2.get()
-        )
-    };
-
+#[component(inline_props)]
+pub fn TableHead(widths: Signal<Vec<Signal<i32>>>) -> View {
     view! {
-        div(class=styles["thead"], style=style) {
-            ResizableColumn(width=width1) {}
-            ResizableColumn(width=width2) {}
-            div {}
-        }
+        Indexed(
+            list=widths,
+            view=move |width| view! {
+                ResizableColumn(width=width)
+            },
+        )
+        div {}
     }
 }

@@ -59,33 +59,5 @@ html, body {
 
 .main {
     padding: 0.5rem;
-}
-
-.thead {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 200px)) auto;
-    gap: 0.5rem;
-}
-
-.th {
-    margin: 0;
-    position: relative;
-    height: 100%;
-}
-
-.slider {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 8px;
-    cursor: col-resize;
-    user-select: none;
-    border-inline: 2px solid #fff;
-}
-
-.tbody {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 200px)) auto;
-    gap: 0.5rem;
 }
