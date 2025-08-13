@@ -3,15 +3,33 @@
     overflow-x: hidden;
 }
 
+.thead {
+    display: grid;
+    grid-template-rows: 200px 200px auto;
+}
+
 .column {
     position: relative;
+    padding-inline: 0.25rem;
+    overflow-x: hidden;
+
+    > span {
+        text-wrap: nowrap;
+    }
 }
 
 .handle {
     position: absolute;
     top: 0;
     right: 0;
+    transform: translateX(50%);
     height: 100%;
     cursor: col-resize;
-    border-right: 0.25rem solid #fff;
+    padding-inline: 1rem;
+    z-index: 2;
+
+    > span {
+        height: 100%;
+        border-right: 0.125rem solid #fff;
+    }
 }

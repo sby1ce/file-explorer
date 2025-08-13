@@ -21,8 +21,8 @@ pub fn DetailsItem(file_data: FileData) -> View {
     }
 }
 
-#[component]
-fn ResizableColumn() -> View {
+#[component(inline_props)]
+fn ResizableColumn(width: Signal<i32>) -> View {
     let styles = css_mod::get!("details.css");
 
     let is_resizing = create_signal(false);
@@ -31,7 +31,9 @@ fn ResizableColumn() -> View {
     let initial_width = create_signal(100);
     let delta_x = create_signal(0);
 
-    let style = move || format!("width: {}px", initial_width.get() + delta_x.get());
+    create_effect(move || {
+        width.set(std::cmp::max(50, initial_width.get() + delta_x.get()));
+    });
 
     let mouse_move = Rc::new(Closure::wrap(Box::new(move |event: MouseEvent| {
         if !is_resizing.get() {
@@ -96,7 +98,6 @@ fn ResizableColumn() -> View {
     view! {
         div(
             r#ref=column,
-            style=style,
             class=styles["column"],
         ) {
             span {
@@ -105,14 +106,33 @@ fn ResizableColumn() -> View {
             div(
                 on:mousedown=mouse_down,
                 class=styles["handle"],
-            )
+            ) {
+                span {}
+            }
         }
     }
 }
 
 #[component]
 pub fn OkBruh() -> View {
+    let styles = css_mod::get!("details.css");
+
+    let width1 = create_signal(200);
+    let width2 = create_signal(200);
+
+    let style = move || {
+        format!(
+            "grid-template-columns: {}px {}px auto",
+            width1.get(),
+            width2.get()
+        )
+    };
+
     view! {
-        ResizableColumn {}
+        div(class=styles["thead"], style=style) {
+            ResizableColumn(width=width1) {}
+            ResizableColumn(width=width2) {}
+            div {}
+        }
     }
 }
