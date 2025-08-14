@@ -121,8 +121,13 @@ pub fn TableHead(widths: Signal<Vec<Signal<i32>>>) -> View {
     view! {
         Indexed(
             list=widths,
-            view=move |width| view! {
-                ResizableColumn(width=width)
+            view=move |width| {
+                // prevent memory leaking when column is removed
+                // https://sycamore.dev/book/introduction/rendering-lists#nested-reactivity
+                on_cleanup(move || width.dispose());
+                view! {
+                    ResizableColumn(width=width)
+                }
             },
         )
         div {}
