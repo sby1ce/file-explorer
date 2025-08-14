@@ -17,6 +17,9 @@ pub fn DetailsItem(file_data: FileData) -> View {
         p(class=styles["p"]) {
             (file_data.creation_time.format())
         }
+        p(class=styles["p"]) {
+            (file_data.extension)
+        }
         div {}
     }
 }

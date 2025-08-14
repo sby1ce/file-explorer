@@ -56,6 +56,12 @@ fn pick_directory<R: Runtime>(app: tauri::AppHandle<R>) -> Response {
                 id: idx as u32,
                 file_name: path.file_name().unwrap().to_str().unwrap().to_owned(),
                 creation_time,
+                extension: path
+                    .extension()
+                    .unwrap_or_default()
+                    .to_str()
+                    .unwrap()
+                    .to_owned(),
             }
         })
         .collect();

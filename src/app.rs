@@ -25,15 +25,19 @@ pub fn App() -> View {
 
     // creating vec with map because `Signal` is clonable
     // so Rust clones the same signal for all elements
-    let widths: Signal<Vec<Signal<i32>>> =
-        create_signal((0..2).map(|_| create_signal(200)).collect());
+    let widths: Signal<Vec<Signal<i32>>> = create_signal(vec![
+        create_signal(400),
+        create_signal(200),
+        create_signal(100),
+    ]);
 
     let style = move || {
         let widths = widths.get_clone();
         format!(
-            "grid-template-columns: {}px {}px auto",
+            "grid-template-columns: {}px {}px {}px auto",
             widths[0].get(),
             widths[1].get(),
+            widths[2].get(),
         )
     };
 

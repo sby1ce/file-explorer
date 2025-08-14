@@ -23,6 +23,7 @@ pub struct FileData {
     pub id: u32,
     pub file_name: String,
     pub creation_time: Timestamp,
+    pub extension: String,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize, Default, Clone, PartialEq, Eq)]
