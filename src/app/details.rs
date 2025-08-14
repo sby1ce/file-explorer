@@ -74,7 +74,6 @@ fn ResizableColumn(width: Signal<i32>) -> View {
     let mouse_up_clone = mouse_up.clone();
     let mouse_down = move |event: MouseEvent| {
         is_resizing.set(true);
-        initial_x.set(event.client_x());
         initial_width.set(
             column
                 .get()
@@ -82,6 +81,8 @@ fn ResizableColumn(width: Signal<i32>) -> View {
                 .unwrap()
                 .offset_width(),
         );
+        delta_x.set(0);
+        initial_x.set(event.client_x());
         event.prevent_default();
 
         let window = window();
