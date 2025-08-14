@@ -3,7 +3,9 @@ use std::path::PathBuf;
 use chrono::{DateTime, Utc};
 
 /// in milliseconds
-#[derive(Debug, serde::Serialize, serde::Deserialize, Clone, Copy, PartialEq, Eq)]
+#[derive(
+    Debug, serde::Serialize, serde::Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord,
+)]
 pub struct Timestamp(i64);
 
 impl Timestamp {

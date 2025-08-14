@@ -25,25 +25,80 @@ pub fn DetailsItem(file_data: FileData) -> View {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DetailsColumn {
+    FileName,
+    CreatedAt,
+    Extension,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SortOptions {
+    FileName(bool),
+    CreatedAt(bool),
+    Extension(bool),
+}
+
+#[derive(Debug, Clone, Copy, Eq)]
 pub struct ColumnProps {
     pub width: Signal<i32>,
     pub title: &'static str,
+    pub sort_options: Signal<Option<SortOptions>>,
+    pub column: DetailsColumn,
+}
+
+impl PartialEq for ColumnProps {
+    fn eq(&self, other: &Self) -> bool {
+        self.width == other.width && self.title == other.title
+    }
 }
 
 impl ColumnProps {
-    pub fn new(initial_width: i32, title: &'static str) -> Self {
+    pub fn new(
+        initial_width: i32,
+        title: &'static str,
+        sort_options: Signal<Option<SortOptions>>,
+        column: DetailsColumn,
+    ) -> Self {
         Self {
             width: create_signal(initial_width),
             title,
+            sort_options,
+            column,
         }
     }
     pub fn dispose(self) {
         self.width.dispose();
+        // sort_options belongs to the parent so we're not disposing of it here
+    }
+    pub fn click(&self) {
+        match self.column {
+            DetailsColumn::FileName => {
+                self.sort_options.set(match self.sort_options.get() {
+                    Some(SortOptions::FileName(false)) => Some(SortOptions::FileName(true)),
+                    Some(SortOptions::FileName(true)) => None,
+                    _ => Some(SortOptions::FileName(false)),
+                });
+            }
+            DetailsColumn::CreatedAt => {
+                self.sort_options.set(match self.sort_options.get() {
+                    Some(SortOptions::CreatedAt(false)) => Some(SortOptions::CreatedAt(true)),
+                    Some(SortOptions::CreatedAt(true)) => None,
+                    _ => Some(SortOptions::CreatedAt(false)),
+                });
+            }
+            DetailsColumn::Extension => {
+                self.sort_options.set(match self.sort_options.get() {
+                    Some(SortOptions::Extension(false)) => Some(SortOptions::Extension(true)),
+                    Some(SortOptions::Extension(true)) => None,
+                    _ => Some(SortOptions::Extension(false)),
+                });
+            }
+        }
     }
 }
 
 #[component(inline_props)]
-fn ResizableColumn(width: Signal<i32>, title: &'static str) -> View {
+fn ResizableColumn(width: Signal<i32>, title: &'static str, click: impl Fn() + 'static) -> View {
     let styles = css_mod::get!("details.css");
 
     let is_resizing = create_signal(false);
@@ -122,7 +177,7 @@ fn ResizableColumn(width: Signal<i32>, title: &'static str) -> View {
             r#ref=column,
             class=styles["column"],
         ) {
-            span {
+            button(on:click=move |_| click()) {
                 (title)
             }
             div(
@@ -141,7 +196,11 @@ pub fn TableHead(props: Signal<Vec<ColumnProps>>) -> View {
         // prevent memory leaking when column is removed
         // https://sycamore.dev/book/introduction/rendering-lists#nested-reactivity
         on_cleanup(move || props.dispose());
-        view!(ResizableColumn(width = props.width, title = props.title))
+        view!(ResizableColumn(
+            width = props.width,
+            title = props.title,
+            click = move || props.click(),
+        ))
     }
     view! {
         Indexed(
