@@ -4,7 +4,7 @@ mod header;
 use sycamore::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::app::details::{DetailsItem, TableHead};
+use crate::app::details::{ColumnProps, DetailsItem, TableHead};
 use fe_types::PickedDirectory;
 
 #[wasm_bindgen]
@@ -25,19 +25,19 @@ pub fn App() -> View {
 
     // creating vec with map because `Signal` is clonable
     // so Rust clones the same signal for all elements
-    let widths: Signal<Vec<Signal<i32>>> = create_signal(vec![
-        create_signal(400),
-        create_signal(200),
-        create_signal(100),
+    let props: Signal<Vec<ColumnProps>> = create_signal(vec![
+        ColumnProps::new(200, "file name"),
+        ColumnProps::new(200, "created at"),
+        ColumnProps::new(100, "extension"),
     ]);
 
     let style = move || {
-        let widths = widths.get_clone();
+        let widths = props.get_clone();
         format!(
             "grid-template-columns: {}px {}px {}px auto",
-            widths[0].get(),
-            widths[1].get(),
-            widths[2].get(),
+            widths[0].width.get(),
+            widths[1].width.get(),
+            widths[2].width.get(),
         )
     };
 
@@ -45,7 +45,7 @@ pub fn App() -> View {
         header::Header(set_files=directory) {}
 
         main(class=styles["main"], style=style) {
-            TableHead(widths=widths) {}
+            TableHead(props=props) {}
 
             Keyed(
                 list=files,

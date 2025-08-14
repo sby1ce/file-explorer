@@ -24,14 +24,32 @@ pub fn DetailsItem(file_data: FileData) -> View {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ColumnProps {
+    pub width: Signal<i32>,
+    pub title: &'static str,
+}
+
+impl ColumnProps {
+    pub fn new(initial_width: i32, title: &'static str) -> Self {
+        Self {
+            width: create_signal(initial_width),
+            title,
+        }
+    }
+    pub fn dispose(self) {
+        self.width.dispose();
+    }
+}
+
 #[component(inline_props)]
-fn ResizableColumn(width: Signal<i32>) -> View {
+fn ResizableColumn(width: Signal<i32>, title: &'static str) -> View {
     let styles = css_mod::get!("details.css");
 
     let is_resizing = create_signal(false);
     let column = create_node_ref();
     let initial_x = create_signal(0);
-    let initial_width = create_signal(100);
+    let initial_width = create_signal(width.get());
     let delta_x = create_signal(0);
 
     create_effect(move || {
@@ -105,7 +123,7 @@ fn ResizableColumn(width: Signal<i32>) -> View {
             class=styles["column"],
         ) {
             span {
-                "file name"
+                (title)
             }
             div(
                 on:mousedown=mouse_down,
@@ -118,18 +136,17 @@ fn ResizableColumn(width: Signal<i32>) -> View {
 }
 
 #[component(inline_props)]
-pub fn TableHead(widths: Signal<Vec<Signal<i32>>>) -> View {
+pub fn TableHead(props: Signal<Vec<ColumnProps>>) -> View {
+    fn column_view(props: ColumnProps) -> View {
+        // prevent memory leaking when column is removed
+        // https://sycamore.dev/book/introduction/rendering-lists#nested-reactivity
+        on_cleanup(move || props.dispose());
+        view!(ResizableColumn(width = props.width, title = props.title))
+    }
     view! {
         Indexed(
-            list=widths,
-            view=move |width| {
-                // prevent memory leaking when column is removed
-                // https://sycamore.dev/book/introduction/rendering-lists#nested-reactivity
-                on_cleanup(move || width.dispose());
-                view! {
-                    ResizableColumn(width=width)
-                }
-            },
+            list=props,
+            view=column_view,
         )
         div {}
     }
