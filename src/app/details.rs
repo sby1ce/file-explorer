@@ -71,34 +71,47 @@ impl ColumnProps {
         // sort_options belongs to the parent so we're not disposing of it here
     }
     pub fn click(&self) {
-        match self.column {
-            DetailsColumn::FileName => {
-                self.sort_options.set(match self.sort_options.get() {
-                    Some(SortOptions::FileName(false)) => Some(SortOptions::FileName(true)),
-                    Some(SortOptions::FileName(true)) => None,
-                    _ => Some(SortOptions::FileName(false)),
-                });
+        let new = match (self.column, self.sort_options.get()) {
+            (DetailsColumn::FileName, Some(SortOptions::FileName(false))) => {
+                Some(SortOptions::FileName(true))
             }
-            DetailsColumn::CreatedAt => {
-                self.sort_options.set(match self.sort_options.get() {
-                    Some(SortOptions::CreatedAt(false)) => Some(SortOptions::CreatedAt(true)),
-                    Some(SortOptions::CreatedAt(true)) => None,
-                    _ => Some(SortOptions::CreatedAt(false)),
-                });
+            (DetailsColumn::FileName, Some(SortOptions::FileName(true))) => None,
+            (DetailsColumn::FileName, _) => Some(SortOptions::FileName(false)),
+
+            (DetailsColumn::CreatedAt, Some(SortOptions::CreatedAt(false))) => {
+                Some(SortOptions::CreatedAt(true))
             }
-            DetailsColumn::Extension => {
-                self.sort_options.set(match self.sort_options.get() {
-                    Some(SortOptions::Extension(false)) => Some(SortOptions::Extension(true)),
-                    Some(SortOptions::Extension(true)) => None,
-                    _ => Some(SortOptions::Extension(false)),
-                });
+            (DetailsColumn::CreatedAt, Some(SortOptions::CreatedAt(true))) => None,
+            (DetailsColumn::CreatedAt, _) => Some(SortOptions::CreatedAt(false)),
+
+            (DetailsColumn::Extension, Some(SortOptions::Extension(false))) => {
+                Some(SortOptions::Extension(true))
             }
+            (DetailsColumn::Extension, Some(SortOptions::Extension(true))) => None,
+            (DetailsColumn::Extension, _) => Some(SortOptions::Extension(false)),
+        };
+        self.sort_options.set(new);
+    }
+    pub fn order(&self) -> &'static str {
+        match (self.column, self.sort_options.get()) {
+            (DetailsColumn::FileName, Some(SortOptions::FileName(false)))
+            | (DetailsColumn::CreatedAt, Some(SortOptions::CreatedAt(false)))
+            | (DetailsColumn::Extension, Some(SortOptions::Extension(false))) => "rotate: -90deg",
+            (DetailsColumn::FileName, Some(SortOptions::FileName(true)))
+            | (DetailsColumn::CreatedAt, Some(SortOptions::CreatedAt(true)))
+            | (DetailsColumn::Extension, Some(SortOptions::Extension(true))) => "rotate: 90deg",
+            _ => "display: none",
         }
     }
 }
 
 #[component(inline_props)]
-fn ResizableColumn(width: Signal<i32>, title: &'static str, click: impl Fn() + 'static) -> View {
+fn ResizableColumn(
+    width: Signal<i32>,
+    title: &'static str,
+    click: impl Fn() + 'static,
+    icon: ReadSignal<&'static str>,
+) -> View {
     let styles = css_mod::get!("details.css");
 
     let is_resizing = create_signal(false);
@@ -179,6 +192,22 @@ fn ResizableColumn(width: Signal<i32>, title: &'static str, click: impl Fn() + '
         ) {
             button(on:click=move |_| click()) {
                 (title)
+
+                svg(
+                    version="1.1",
+                    xmlns="http://www.w3.org/2000/svg",
+                    viewBox="0 0 185.343 185.343",
+                    style=icon,
+                ) {
+                    g {
+                        path(
+                            fill="#FFFFFF",
+                            d="M51.707,185.343c-2.741,0-5.493-1.044-7.593-3.149c-4.194-4.194-4.194-10.981,0-15.175
+			l74.352-74.347L44.114,18.32c-4.194-4.194-4.194-10.987,0-15.175c4.194-4.194,10.987-4.194,15.18,0l81.934,81.934
+			c4.194,4.194,4.194,10.987,0,15.175l-81.934,81.939C57.201,184.293,54.454,185.343,51.707,185.343z"
+                        )
+                    }
+                }
             }
             div(
                 on:mousedown=mouse_down,
@@ -196,10 +225,14 @@ pub fn TableHead(props: Signal<Vec<ColumnProps>>) -> View {
         // prevent memory leaking when column is removed
         // https://sycamore.dev/book/introduction/rendering-lists#nested-reactivity
         on_cleanup(move || props.dispose());
+        // have to wrap in reate memo because can't pass derived closures and MaybeDyn isn't workign with &str
+        // https://sycamore.dev/book/introduction/adding-state#reactive-components
+        let icon: ReadSignal<&'static str> = create_memo(move || props.order());
         view!(ResizableColumn(
             width = props.width,
             title = props.title,
             click = move || props.click(),
+            icon = icon,
         ))
     }
     view! {
