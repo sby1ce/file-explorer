@@ -1,0 +1,12 @@
+{
+  "name": "file-explorer",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "check": "taplo fmt && cargo fmt && cargo clippy && biome check --write --unsafe ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.0",
+    "@taplo/cli": "^0.7.0"
+  }
+}

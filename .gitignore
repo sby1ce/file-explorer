@@ -3,3 +3,6 @@ target/
 Cargo.lock
 
 *.generated.css
+
+bun.lock
+node_modules/

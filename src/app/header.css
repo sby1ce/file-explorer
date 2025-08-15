@@ -1,9 +1,9 @@
 .header {
-    padding: 0.25rem;
-    border-bottom: 1px solid #808080;
+  padding: 0.25rem;
+  border-bottom: 1px solid #808080;
 }
 
 .button {
-    background-color: #111;
-    color: #ddd;
+  background-color: #111;
+  color: #ddd;
 }
