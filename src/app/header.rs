@@ -22,7 +22,7 @@ pub fn Header(set_files: Signal<PickedDirectory>) -> View {
     let styles = css_mod::get!("header.css");
     view! {
         header(class=styles["header"]) {
-            button(r#type="button", class=styles["button"], on:click=move |_e| { pick_directory(set_files); }) {
+            button(r#type="button", class=styles["button"], on:click=move |_e| pick_directory(set_files)) {
                 "open"
             }
         }

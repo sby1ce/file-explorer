@@ -7,20 +7,27 @@ use web_sys::{HtmlElement, MouseEvent};
 
 use fe_types::{FileData, PickedDirectory};
 
-#[component]
-fn DetailsItem(file_data: FileData) -> View {
+#[component(inline_props)]
+fn DetailsItem(
+    file_data: FileData,
+    select: impl Fn(u32) + Copy + 'static,
+    deselect: impl Fn() + Copy + 'static,
+) -> View {
     let styles = css_mod::get!("details.css");
+
+    let file_id: u32 = file_data.id;
+
     view! {
-        p(class=styles["p"]) {
+        button(class=styles["p"], r#type="button", on:click=move |_e| select(file_id)) {
             (file_data.file_name)
         }
-        p(class=styles["p"]) {
+        button(class=styles["p"], r#type="button", on:click=move |_e| select(file_id)) {
             (file_data.creation_time.format())
         }
-        p(class=styles["p"]) {
+        button(class=styles["p"], r#type="button", on:click=move |_e| select(file_id)) {
             (file_data.extension)
         }
-        div {}
+        div(on:click=move |_e| deselect()) {}
     }
 }
 
@@ -245,7 +252,7 @@ fn TableHead(props: Signal<Vec<ColumnProps>>) -> View {
 }
 
 #[component(inline_props)]
-pub fn DetailsView(directory: Signal<PickedDirectory>) -> View {
+pub fn DetailsView(directory: ReadSignal<PickedDirectory>, selected: Signal<Option<u32>>) -> View {
     let styles = css_mod::get!("details.css");
 
     let sort_options: Signal<Option<SortOptions>> = create_signal(None);
@@ -306,7 +313,15 @@ pub fn DetailsView(directory: Signal<PickedDirectory>) -> View {
 
             Keyed(
                 list=files,
-                view=DetailsItem,
+                view=move |file| {
+                    view! {
+                        DetailsItem(
+                            file_data=file,
+                            select=move |id| selected.set(Some(id)),
+                            deselect=move || selected.set(None),
+                        )
+                    }
+                },
                 key=|file| file.id,
             )
         }
