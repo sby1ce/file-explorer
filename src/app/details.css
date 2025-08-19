@@ -1,17 +1,23 @@
+.table-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  > div {
+    opacity: 0;
+  }
+}
+
 .p {
   display: block;
   margin: 0;
   text-wrap: nowrap;
   overflow-x: hidden;
   padding-inline: 0.25rem;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-}
-
-:hover ~ .p {
-  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .column {

@@ -16,16 +16,21 @@ fn DetailsItem(
     let file_id: u32 = file_data.id;
 
     view! {
-        button(class=styles["p"], r#type="button", on:click=move |_e| select(file_id)) {
-            (file_data.file_name)
+        div(class=styles["table-row"], on:click=move |_e| select(file_id)) {
+            p(class=styles["p"]) {
+                (file_data.file_name)
+            }
+            p(class=styles["p"]) {
+                (file_data.creation_time.format())
+            }
+            p(class=styles["p"]) {
+                (file_data.extension)
+            }
+            div(on:click=move |e: MouseEvent| {
+                e.stop_propagation();
+                deselect();
+            })
         }
-        button(class=styles["p"], r#type="button", on:click=move |_e| select(file_id)) {
-            (file_data.creation_time.format())
-        }
-        button(class=styles["p"], r#type="button", on:click=move |_e| select(file_id)) {
-            (file_data.extension)
-        }
-        div(on:click=move |_e| deselect()) {}
     }
 }
 
@@ -292,6 +297,7 @@ pub fn DetailsView(directory: ReadSignal<PickedDirectory>, selected: Signal<Opti
 
     let style = move || {
         let widths = props.get_clone();
+        // don't forget to change in table-row
         format!(
             "grid-template-columns: {}px {}px {}px auto",
             widths[0].width.get(),
