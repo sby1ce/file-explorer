@@ -22,7 +22,9 @@ pub fn App() -> View {
     let directory: Signal<PickedDirectory> = create_signal(PickedDirectory::default());
 
     let selected: Signal<Option<u32>> = create_signal(None);
-    create_effect(move || { console_dbg!(selected.get()); });
+    create_effect(move || {
+        console_dbg!(selected.get());
+    });
 
     view! {
         header::Header(set_files=directory)
