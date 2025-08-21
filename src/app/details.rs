@@ -16,7 +16,12 @@ fn DetailsItem(
     let file_id: u32 = file_data.id;
 
     view! {
-        div(class=styles["table-row"], on:click=move |_e| select(file_id)) {
+        div(
+            class=styles["table-row"],
+            on:click=move |_e| select(file_id),
+            aria-role="button",
+            tabindex="0",
+        ) {
             p(class=styles["p"]) {
                 (file_data.file_name)
             }
@@ -312,15 +317,11 @@ pub fn DetailsView(directory: ReadSignal<PickedDirectory>, selected: Signal<Opti
 
             Keyed(
                 list=files,
-                view=move |file| {
-                    view! {
-                        DetailsItem(
-                            file_data=file,
-                            select=move |id| selected.set(Some(id)),
-                            deselect=move || selected.set(None),
-                        )
-                    }
-                },
+                view=move |file| view!(DetailsItem(
+                    file_data=file,
+                    select=move |id| selected.set(Some(id)),
+                    deselect=move || selected.set(None),
+                )),
                 key=|file| file.id,
             )
         }

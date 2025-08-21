@@ -16,6 +16,7 @@
   display: block;
   margin: 0;
   text-wrap: nowrap;
+  text-overflow: ellipsis;
   overflow-x: hidden;
   padding-inline: 0.25rem;
 }
@@ -32,6 +33,7 @@
     background-color: transparent;
     color: #fff;
     text-align: start;
+    text-overflow: ellipsis;
     margin: 0;
     padding: 0 0.5rem;
     width: 100%;
@@ -49,6 +51,7 @@
       translate: 0 50%;
     }
 
+    /* biome-ignore lint/style/noDescendingSpecificity: literally wrong */
     &:hover {
       background-color: rgba(255, 255, 255, 0.2);
     }

@@ -18,13 +18,21 @@ fn pick_directory(set_files: Signal<PickedDirectory>) {
 }
 
 #[component(inline_props)]
-pub fn Header(set_files: Signal<PickedDirectory>) -> View {
+pub fn Header(set_files: Signal<PickedDirectory>, item_view: Signal<bool>) -> View {
     let styles = css_mod::get!("header.css");
     view! {
         header(class=styles["header"]) {
-            button(r#type="button", class=styles["button"], on:click=move |_e| pick_directory(set_files)) {
-                "open"
-            }
+            button(
+                r#type="button",
+                class=styles["button"],
+                on:click=move |_e| pick_directory(set_files)
+            ) { "open" }
+
+            button(
+                r#type="button",
+                class=styles["button"],
+                on:click=move |_e| item_view.set_fn(|iv| !iv),
+            ) { "view" }
         }
     }
 }

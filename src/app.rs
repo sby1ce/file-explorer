@@ -1,10 +1,11 @@
 mod details;
+mod grid;
 mod header;
 
 use sycamore::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::app::details::DetailsView;
+use crate::app::{details::DetailsView, grid::GridView};
 use fe_types::PickedDirectory;
 
 #[wasm_bindgen]
@@ -26,9 +27,15 @@ pub fn App() -> View {
         console_dbg!(selected.get());
     });
 
-    view! {
-        header::Header(set_files=directory)
+    let item_view: Signal<bool> = create_signal(true);
 
-        DetailsView(directory=*directory, selected=selected)
+    view! {
+        header::Header(set_files=directory, item_view=item_view)
+
+        (if item_view.get() {
+            view!(GridView(directory=*directory, selected=selected))
+        } else {
+            view!(DetailsView(directory=*directory, selected=selected))
+        })
     }
 }

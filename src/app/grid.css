@@ -1,0 +1,29 @@
+.main {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 1rem;
+  gap: 2rem;
+}
+
+.item {
+  max-width: 150px;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  text-align: center;
+  line-height: 1.2rem;
+  max-height: 3.6rem;
+  overflow: hidden;
+  position: relative;
+
+  /* https://css-tricks.com/line-clampin/ */
+  &::after {
+    content: "";
+    text-align: right;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 50%;
+    height: 1.2em;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 50%);
+  }
+}
